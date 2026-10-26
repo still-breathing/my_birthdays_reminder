@@ -281,10 +281,17 @@ svg {
   border-radius:10px;
   font-size:.74rem;
 }
+.row-actions .edit {
+  background:var(--fam);
+  color:var(--bg);
+  border-color:var(--fam);
+  font-weight:700;
+}
 .row-actions .gcal {
-  background:var(--sunbg);
-  border-color:var(--sunbg);
-  color:var(--sunink);
+  background:var(--kid);
+  color:var(--bg);
+  border-color:var(--kid);
+  font-weight:700;
 }
 .x {
   border:0;
@@ -442,16 +449,31 @@ footer span {
     grid-template-areas:
       "d meta"
       "d actions";
-    padding:10px 10px 8px;
+    padding:6px 8px;
   }
   .row .d { grid-area:d; }
   .row .meta { grid-area:meta; }
   .row .badge { grid-area:actions; justify-self:start; margin-top:8px; }
+  .row .n { font-size:.88rem; }
+  .row .s { font-size:.75rem; }
   .row-actions {
     margin-top:8px;
+    gap:6px;
+  }
+  .row-actions button {
+    padding:5px 7px;
+    font-size:.68rem;
   }
   .pager {
     justify-content:space-between;
+    position:sticky;
+    bottom:10px;
+    z-index:20;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:8px 10px;
+    margin-top:12px;
   }
   .page-indicator {
     order:1;
@@ -546,7 +568,7 @@ const BASE=[
   [1,5,'Aliza'],[1,6,'Titash'],[1,13,'Papu'],[1,14,'Yusra'],[1,15,'Adrita'],[1,24,'Ilma'],[1,24,'Aliya'],
   [2,5,'Yamin'],[2,5,'Asher'],
   [3,5,'Annesha'],[3,6,'Ornob'],[3,14,'Eesa'],[3,18,'Kishore'],[3,21,'Putushi'],[3,23,'Isabella'],[3,30,'Shantu'],
-  [4,14,'Adam'],[4,16,'Hashem Khalu'],[4,20,'Jui'],[4,20,'Kinnory'],[4,27,'Papu'],[4,27,'Mojel Mami'],[4,29,'Zayeem'],
+  [4,14,'Adam'],[4,16,'Hashem Khalu'],[4,20,'Jui'],[4,20,'Kinnory'],[4,27,'Papu (Apr)'],[4,27,'Mojel Mami'],[4,29,'Zayeem'],
   [5,29,'Pinu Khali','2nd birthday (Punorjonmo dibosh)'],
   [6,13,'Rahmah'],[6,28,'Shomla'],[6,28,'Tanisha'],
   [7,20,'Shomla'],[7,24,'Eram'],[7,27,'Tinni'],
@@ -574,14 +596,10 @@ const fmtDate=(d)=>{const y=d.getFullYear(); const m=String(d.getMonth()+1).padS
 let people=[];
 const S={kind:'all',sort:'month',m:null,q:'',page:1};
 
-function matchBaseKey(a,b){
-  return a && b && a.n===b.n && a.m===b.m && a.d===b.d;
-}
-
 function build(){
-  const overriddenKeys = new Set((extra.filter(p => p && p.__baseMatch) || []).map(p => `${p.__baseMatch.n}|${p.__baseMatch.m}|${p.__baseMatch.d}`));
+  const overriddenBaseKeys = new Set((extra || []).filter(p => p && p.__baseKey).map(p => p.__baseKey));
   const basePeople = BASE.map(([m,d,n,note]) => ({m,d,n,note,k:KIDS.includes(n)}))
-    .filter(p => !overriddenKeys.has(`${p.n}|${p.m}|${p.d}`));
+    .filter(p => !overriddenBaseKeys.has(`${p.n}|${p.m}|${p.d}`));
 
   const extraPeople = (extra || []).map((p, idx) => ({
     ...p,
@@ -606,7 +624,6 @@ function getMonthCount(monthIndex){
 function renderPills(){
   const totalFiltered = people.filter(ok).length;
   const allYearLabel = totalFiltered ? `All year (${totalFiltered})` : 'All year';
-  const activeLabel = S.m !== null ? SHORT_MONTHS[S.m] + ' (' + getMonthCount(S.m) + ')' : null;
   const pillButtons = FULL_MONTHS.map((m, i) => {
     const count = getMonthCount(i);
     const isActive = S.m === i;
@@ -798,12 +815,15 @@ $('f').addEventListener('submit',e=>{
 
   if(currentEditId!=null){
     const current=people[currentEditId];
-    if(current.x == null){
-      const original={n:current.n,m:current.m,d:current.d};
-      extra = extra.filter(item => !(item && item.__baseMatch && item.__baseMatch.n===original.n && item.__baseMatch.m===original.m && item.__baseMatch.d===original.d));
-      extra.push({n:name,m:month,d:day,k:isKid,__baseMatch:original});
-    } else {
-      extra[current.x]={...extra[current.x], n:name, m:month, d:day, k:isKid};
+    const baseKey = current && current.n && current.m && current.d ? `${current.n}|${current.m}|${current.d}` : null;
+    const existingIndex = baseKey ? extra.findIndex(item => item && item.__baseKey === baseKey) : -1;
+
+    if(existingIndex >= 0){
+      extra[existingIndex] = { ...extra[existingIndex], n:name, m:month, d:day, k:isKid };
+    } else if (current && current.x == null && baseKey) {
+      extra.push({ n:name, m:month, d:day, k:isKid, __baseKey: baseKey });
+    } else if (current && current.x != null) {
+      extra[current.x] = { ...extra[current.x], n:name, m:month, d:day, k:isKid };
     }
   } else {
     extra.push({n:name,m:month,d:day,k:isKid});

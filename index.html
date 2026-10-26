@@ -10,31 +10,31 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#EEEBF6;
-  --card:#fff;
-  --ink:#3c4452;
-  --mute:#67628A;
-  --line:#D8D3EA;
-  --fam:#5B3FD0;
-  --kid:#0B8F82;
-  --sun:#F2A22B;
-  --sunbg:#FFE9C2;
-  --sunink:#4A2D00;
-  --shadow:0 16px 40px rgba(39,28,78,.12);
+  --bg:#151b2d;
+  --card:#1d2940;
+  --ink:#EEEAFB;
+  --mute:#c5cfe6;
+  --line:#354663;
+  --fam:#a78bfa;
+  --kid:#64d3c6;
+  --sun:#f7b955;
+  --sunbg:#f8e7b8;
+  --sunink:#30230a;
+  --shadow:0 18px 40px rgba(10,12,20,.28);
 }
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --bg:#171230;
-    --card:#221B42;
-    --ink:#3c4452;
-    --mute:#A8A2C8;
-    --line:#382F63;
-    --fam:#A99AFF;
-    --kid:#4FD3C2;
-    --sun:#F6B94E;
-    --sunbg:#4A3510;
-    --sunink:#FFE3A8;
-    --shadow:0 18px 42px rgba(14,10,32,.46);
+    --bg:#f4f0ff;
+    --card:#ffffff;
+    --ink:#241E3F;
+    --mute:#67628A;
+    --line:#D8D3EA;
+    --fam:#5B3FD0;
+    --kid:#0B8F82;
+    --sun:#F2A22B;
+    --sunbg:#FFE9C2;
+    --sunink:#4A2D00;
+    --shadow:0 16px 40px rgba(39,28,78,.12);
   }
 }
 * { box-sizing:border-box; }
@@ -218,7 +218,7 @@ svg {
   grid-template-columns:52px minmax(0,1fr) auto;
   align-items:center;
   gap:14px;
-  padding:12px 14px;
+  padding:10px 12px;
   margin:0;
   background:var(--card);
   border-radius:14px;
@@ -227,12 +227,12 @@ svg {
 }
 .row.k { border-left-color:var(--kid); }
 .row .d {
-  font:800 1.8rem/1 'Bricolage Grotesque',system-ui,sans-serif;
+  font:800 1.7rem/1 'Bricolage Grotesque',system-ui,sans-serif;
   text-align:center;
 }
 .row .d small {
   display:block;
-  font:600 .72rem Figtree,system-ui,sans-serif;
+  font:600 .7rem Figtree,system-ui,sans-serif;
   color:var(--mute);
   margin-top:4px;
 }
@@ -242,10 +242,11 @@ svg {
   gap:8px;
   font-weight:700;
   flex-wrap:wrap;
+  font-size:.98rem;
 }
 .row .s {
   color:var(--mute);
-  font-size:.85rem;
+  font-size:.8rem;
   margin-top:4px;
 }
 .row .meta {
@@ -254,7 +255,7 @@ svg {
   min-width:0;
 }
 .badge {
-  font-size:.82rem;
+  font-size:.8rem;
   color:var(--mute);
   white-space:nowrap;
   justify-self:end;
@@ -270,15 +271,15 @@ svg {
   display:flex;
   gap:8px;
   flex-wrap:wrap;
-  margin-top:10px;
+  margin-top:8px;
 }
 .row-actions button {
   border:1.5px solid var(--line);
   background:var(--bg);
   color:var(--ink);
-  padding:7px 10px;
+  padding:5px 8px;
   border-radius:10px;
-  font-size:.8rem;
+  font-size:.74rem;
 }
 .row-actions .gcal {
   background:var(--sunbg);
@@ -325,14 +326,16 @@ svg {
   text-align:center;
 }
 footer {
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
   margin-top:36px;
   color:var(--mute);
   font-size:.88rem;
-  max-width:60ch;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  justify-content:center;
+  width:100%;
+  text-align:right;
 }
 footer span {
   white-space:nowrap;
@@ -439,7 +442,7 @@ footer span {
     grid-template-areas:
       "d meta"
       "d actions";
-    padding:12px 12px 10px;
+    padding:10px 10px 8px;
   }
   .row .d { grid-area:d; }
   .row .meta { grid-area:meta; }
@@ -457,8 +460,8 @@ footer span {
     text-align:center;
   }
   footer {
-    text-align:center;
-    justify-content:center;
+    justify-content:flex-end;
+    text-align:right;
   }
 }
 </style>
@@ -571,16 +574,46 @@ const fmtDate=(d)=>{const y=d.getFullYear(); const m=String(d.getMonth()+1).padS
 let people=[];
 const S={kind:'all',sort:'month',m:null,q:'',page:1};
 
+function matchBaseKey(a,b){
+  return a && b && a.n===b.n && a.m===b.m && a.d===b.d;
+}
+
 function build(){
-  people=BASE.map(([m,d,n,note])=>({m,d,n,note,k:KIDS.includes(n)})).concat(extra.map((p,i)=>({...p,x:i})));
+  const overriddenKeys = new Set((extra.filter(p => p && p.__baseMatch) || []).map(p => `${p.__baseMatch.n}|${p.__baseMatch.m}|${p.__baseMatch.d}`));
+  const basePeople = BASE.map(([m,d,n,note]) => ({m,d,n,note,k:KIDS.includes(n)}))
+    .filter(p => !overriddenKeys.has(`${p.n}|${p.m}|${p.d}`));
+
+  const extraPeople = (extra || []).map((p, idx) => ({
+    ...p,
+    x: idx,
+    m: Number(p.m),
+    d: Number(p.d),
+    n: String(p.n),
+    k: Boolean(p.k),
+    note: p.note || ''
+  }));
+
+  people = basePeople.concat(extraPeople);
   people.forEach((p,i)=>{p.id=i;p.u=until(p.m,p.d)});
 }
 const nextGroup=()=>{const mn=Math.min(...people.map(p=>p.u));return people.filter(p=>p.u===mn)};
 const ok=p=>(S.kind=='all'||(S.kind=='kid')==p.k)&&(S.m==null||p.m-1==S.m)&&p.n.toLowerCase().includes(S.q);
 
+function getMonthCount(monthIndex){
+  return people.filter(p => p.m === monthIndex + 1 && ok(p)).length;
+}
+
 function renderPills(){
-  const counts=FULL_MONTHS.map((_,i)=>people.filter(p=>p.m===i+1 && ok(p)).length);
-  $('pills').innerHTML='<button data-m="">All year</button>'+FULL_MONTHS.map((m,i)=>`<button data-m="${i}">${m} <span class="count">(${counts[i]})</span></button>`).join('');
+  const totalFiltered = people.filter(ok).length;
+  const allYearLabel = totalFiltered ? `All year (${totalFiltered})` : 'All year';
+  const activeLabel = S.m !== null ? SHORT_MONTHS[S.m] + ' (' + getMonthCount(S.m) + ')' : null;
+  const pillButtons = FULL_MONTHS.map((m, i) => {
+    const count = getMonthCount(i);
+    const isActive = S.m === i;
+    const label = isActive ? `${SHORT_MONTHS[i]} (${count})` : SHORT_MONTHS[i];
+    return `<button data-m="${i}" ${isActive ? 'aria-pressed="true"' : 'aria-pressed="false"'}>${label}</button>`;
+  }).join('');
+  $('pills').innerHTML = `<button data-m="" ${S.m === null ? 'aria-pressed="true"' : 'aria-pressed="false"'}>${allYearLabel}</button>${pillButtons}`;
 }
 
 function renderPager(filtered){
@@ -653,7 +686,6 @@ function openAddDialog(){
   $('dlg').showModal();
 }
 
-console.log('ready');
 const row=p=>`<article class="row${p.k?' k':''}" id="r${p.id}">
   <div class="d">${p.d}<small>${SHORT_MONTHS[p.m-1]}</small></div>
   <div class="meta">
@@ -661,7 +693,7 @@ const row=p=>`<article class="row${p.k?' k':''}" id="r${p.id}">
     <div class="s">${p.k?KID_LABEL:FAMILY_LABEL}${p.note?', '+esc(p.note):''}</div>
     <div class="row-actions">
       <button type="button" class="edit" data-id="${p.id}">Correct name</button>
-      <button type="button" class="gcal" data-id="${p.id}">Google Calendar</button>
+      <button type="button" class="gcal" data-id="${p.id}">Add to calendar</button>
     </div>
   </div>
   <div class="badge${p.u<=7?' soon':''}">${when(p.u)}</div>
@@ -766,15 +798,12 @@ $('f').addEventListener('submit',e=>{
 
   if(currentEditId!=null){
     const current=people[currentEditId];
-    if(current.x!=null){
-      extra[current.x]={n:name,m:month,d:day,k:isKid};
+    if(current.x == null){
+      const original={n:current.n,m:current.m,d:current.d};
+      extra = extra.filter(item => !(item && item.__baseMatch && item.__baseMatch.n===original.n && item.__baseMatch.m===original.m && item.__baseMatch.d===original.d));
+      extra.push({n:name,m:month,d:day,k:isKid,__baseMatch:original});
     } else {
-      const existingIndex=extra.findIndex(item=>item.m===current.m && item.d===current.d && item.n===current.n);
-      if(existingIndex>=0){
-        extra[existingIndex]={n:name,m:month,d:day,k:isKid};
-      } else {
-        extra.push({n:name,m:month,d:day,k:isKid});
-      }
+      extra[current.x]={...extra[current.x], n:name, m:month, d:day, k:isKid};
     }
   } else {
     extra.push({n:name,m:month,d:day,k:isKid});

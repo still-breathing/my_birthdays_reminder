@@ -361,6 +361,13 @@
       background: var(--card);
       border-radius: 16px;
       padding: 14px 16px;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .person.upcoming {
+      border-color: rgba(242, 162, 43, 0.9);
+      background: linear-gradient(180deg, rgba(255, 233, 194, 0.45), rgba(255,255,255,0.96));
+      box-shadow: 0 12px 28px rgba(242, 162, 43, 0.12);
     }
 
     .person-main {
@@ -396,12 +403,27 @@
     .tag.kid { background: var(--kid); }
     .tag.sun { background: var(--sun); color: var(--sunink); }
 
+    .upcoming-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: var(--sunbg);
+      color: var(--sunink);
+    }
+
     .person-meta {
       color: var(--mute);
       font-size: 0.94rem;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      align-items: center;
     }
 
     .person-meta .dot {
@@ -674,14 +696,7 @@
     const centerCount = document.getElementById('centerCount');
     const centerTag = document.getElementById('centerTag');
 
-    function getMonthCount(month, tag = 'all') {
-      return birthdays.filter(person => {
-        const tagMatch = tag === 'all' || tag === 'next-up' || person.tag === tag;
-        return person.month === month && tagMatch;
-      }).length;
-    }
-
-    function getNextBirthday(items) {
+    function getNextBirthday(items = birthdays) {
       const today = new Date();
       const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       let next = null;
@@ -701,6 +716,13 @@
       });
 
       return next;
+    }
+
+    function getMonthCount(month, tag = 'all') {
+      return birthdays.filter(person => {
+        const tagMatch = tag === 'all' || tag === 'next-up' || person.tag === tag;
+        return person.month === month && tagMatch;
+      }).length;
     }
 
     function getFilteredBirthdays() {
@@ -778,8 +800,6 @@
 
       for (let i = 0; i < 12; i++) {
         const angle = (Math.PI * 2 * i) / 12 - Math.PI / 2;
-        const x = cx + Math.cos(angle) * outerRadius;
-        const y = cy + Math.sin(angle) * outerRadius;
         const lx = cx + Math.cos(angle) * (outerRadius + 36);
         const ly = cy + Math.sin(angle) * (outerRadius + 36);
 
@@ -862,6 +882,7 @@
     function renderList() {
       const items = getFilteredBirthdays();
       const { items: pageItems, totalPages } = getVisiblePageItems(items);
+      const upcomingPerson = getNextBirthday(birthdays);
 
       listTitle.textContent = state.activeTag === 'next-up'
         ? 'Next up'
@@ -882,12 +903,15 @@
       listEl.innerHTML = pageItems.map((person) => {
         const birthDate = new Date(2025, person.month - 1, person.day);
         const formattedDate = birthDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const isUpcoming = upcomingPerson && person.id === upcomingPerson.id;
+
         return `
-          <article class="person" data-id="${person.id}">
+          <article class="person ${isUpcoming ? 'upcoming' : ''}" data-id="${person.id}">
             <div class="person-main">
               <div class="person-name">
                 <strong>${escapeHtml(person.name)}</strong>
                 <span class="tag ${person.tag === 'Chotora' ? 'kid' : ''}">${person.tag}</span>
+                ${isUpcoming ? '<span class="upcoming-badge">Upcoming</span>' : ''}
               </div>
               <div class="person-meta">
                 <span>${formattedDate}</span>

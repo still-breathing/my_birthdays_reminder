@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Family birthdays</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEEBF6;--card:#fff;--ink:#241E3F;--mute:#67628A;--line:#D8D3EA;--fam:#5B3FD0;--kid:#0B8F82;--sun:#F2A22B;--sunbg:#FFE9C2;--sunink:#4A2D00}
+@media(prefers-color-scheme:dark){:root{--bg:#171230;--card:#221B42;--ink:#EEEAFB;--mute:#A8A2C8;--line:#382F63;--fam:#A99AFF;--kid:#4FD3C2;--sun:#F6B94E;--sunbg:#4A3510;--sunink:#FFE3A8}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Figtree,system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 18px 60px}
+h1{font:800 clamp(2.6rem,9vw,4.6rem)/.95 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 12px}
+.hero{display:grid;gap:20px;align-items:center;margin-bottom:24px}
+@media(min-width:780px){.hero{grid-template-columns:minmax(0,430px) 1fr;gap:48px}}
+.intro p{color:var(--mute);max-width:34ch;margin:0 0 18px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem;color:var(--mute)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--fam)}
+.legend .k i{background:var(--kid)}.legend .t i{background:var(--sun)}
+.ringwrap{position:relative;width:min(100%,430px);aspect-ratio:1;margin:0 auto}
+svg{width:100%;height:100%;display:block;overflow:visible}
+.rim{fill:none;stroke:var(--line);stroke-width:1.5}
+.core{fill:var(--card);stroke:var(--line)}
+.tick{stroke:var(--line);stroke-width:1.5}
+.mo{cursor:pointer;outline:none}
+.mo text{fill:var(--mute);font:600 12px Figtree,sans-serif}
+.mo:hover text,.mo.on text,.mo:focus-visible text{fill:var(--ink)}
+.mo .hit{fill:transparent}
+.mo.on .hit,.mo:focus-visible .hit{fill:var(--line)}
+.today{stroke:var(--sun);stroke-width:2.5;stroke-linecap:round}
+.tdot{fill:var(--sun)}
+.dot{cursor:pointer;transition:opacity .2s,r .15s;transform-box:fill-box;transform-origin:center;animation:pop .5s backwards;animation-delay:calc(var(--i)*14ms);outline:none}
+.dot.a{fill:var(--fam)}.dot.k{fill:var(--kid)}
+.dot.dim{opacity:.15}
+.dot:hover,.dot:focus-visible{r:7;stroke:var(--sun);stroke-width:3}
+.dot.next{stroke:var(--sun);stroke-width:3}
+@keyframes pop{from{opacity:0;transform:scale(0)}}
+.center{position:absolute;inset:25%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.center small{color:var(--mute);font-size:.8rem}
+.center strong{font:800 clamp(1.1rem,4.4vw,1.65rem)/1.1 'Bricolage Grotesque',system-ui,sans-serif;text-wrap:balance;margin:4px 0}
+.center span{color:var(--mute);font-size:.9rem}
+.center b{margin-top:8px;padding:3px 12px;border-radius:99px;background:var(--sunbg);color:var(--sunink);font-size:.85rem}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.search{flex:1 1 200px;padding:11px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+.seg{display:flex;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:3px}
+.seg button{border:0;background:none;padding:7px 13px;border-radius:9px;color:var(--mute);font-weight:600}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.add{border:0;background:var(--fam);color:var(--bg);padding:11px 18px;border-radius:12px;font-weight:600}
+.pills{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.pills button{flex:none;border:1.5px solid var(--line);background:none;padding:5px 12px;border-radius:99px;color:var(--mute)}
+.pills button[aria-pressed=true]{border-color:var(--ink);color:var(--ink);font-weight:600}
+.mh{position:sticky;top:0;z-index:2;background:var(--bg);display:flex;align-items:baseline;gap:10px;padding:18px 0 8px;border-bottom:1.5px solid var(--line)}
+.mh h2{font:800 1.5rem 'Bricolage Grotesque',system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+.mh span{color:var(--mute);font-size:.85rem}
+.row{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:14px;padding:12px 14px;margin:8px 0;background:var(--card);border-radius:14px;border-left:5px solid var(--fam)}
+.row.k{border-left-color:var(--kid)}
+.row .d{font:800 1.8rem/1 'Bricolage Grotesque',system-ui,sans-serif;text-align:center}
+.row .d small{display:block;font:600 .7rem Figtree,sans-serif;color:var(--mute);margin-top:2px}
+.row .n{font-weight:600}
+.row .s{color:var(--mute);font-size:.85rem}
+.badge{font-size:.82rem;color:var(--mute);white-space:nowrap}
+.badge.soon{background:var(--sunbg);color:var(--sunink);padding:3px 10px;border-radius:99px;font-weight:600}
+.row.flash{animation:fl 1.6s}
+@keyframes fl{30%{box-shadow:0 0 0 3px var(--sun)}}
+.x{border:0;background:none;color:var(--mute);font-size:.8rem;text-decoration:underline;padding:0 0 0 10px}
+.empty{padding:40px 0;color:var(--mute);text-align:center}
+footer{margin-top:36px;color:var(--mute);font-size:.88rem;max-width:60ch}
+dialog{border:0;border-radius:18px;background:var(--card);color:var(--ink);padding:24px;width:min(92vw,360px)}
+dialog::backdrop{background:rgba(20,10,50,.55)}
+dialog h3{margin:0 0 14px;font:800 1.4rem 'Bricolage Grotesque',system-ui,sans-serif}
+dialog label{display:block;margin-bottom:12px;font-size:.9rem;color:var(--mute)}
+dialog input,dialog select{display:block;width:100%;margin-top:4px;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.two{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+dialog .chk{display:flex;gap:8px;align-items:center}
+dialog .chk input{width:auto;margin:0}
+.acts{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+.acts button{padding:9px 16px;border-radius:10px;border:1.5px solid var(--line);background:none}
+.acts .go{background:var(--fam);color:var(--bg);border-color:var(--fam);font-weight:600}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="ringwrap">
+      <svg id="ring" viewBox="0 0 400 400" role="group" aria-label="Year wheel of birthdays"></svg>
+      <div class="center" id="center" aria-live="polite"></div>
+    </div>
+    <div class="intro">
+      <h1>Family birthdays</h1>
+      <p>Every birthday around one year. Tap a dot to see who it belongs to, or tap a month to filter the list.</p>
+      <div class="legend"><span><i></i>Family</span><span class="k"><i></i>Kids</span><span class="t"><i></i>Today</span></div>
+    </div>
+  </header>
+  <div class="bar">
+    <input class="search" id="q" type="search" placeholder="Search a name" aria-label="Search a name">
+    <div class="seg" id="kind"><button data-v="all">Everyone</button><button data-v="fam">Family</button><button data-v="kid">Kids</button></div>
+    <div class="seg" id="sort"><button data-v="month">By month</button><button data-v="next">Next up</button></div>
+    <button class="add" id="add">Add birthday</button>
+  </div>
+  <nav class="pills" id="pills" aria-label="Filter by month"></nav>
+  <main id="list"></main>
+  <footer>Based on the family list updated 30 June 2026. Kids listed after Kiron (13 November) were cut off, so use Add birthday to fill them in. Anything you add is saved on this device only.</footer>
+</div>
+
+<dialog id="dlg">
+  <form id="f">
+    <h3>Add a birthday</h3>
+    <label>Name<input id="fn" required maxlength="40" autocomplete="off"></label>
+    <div class="two">
+      <label>Month<select id="fm"></select></label>
+      <label>Day<input id="fd" type="number" min="1" max="31" required></label>
+    </div>
+    <label class="chk"><input id="fk" type="checkbox">This is a kid</label>
+    <div class="acts"><button type="button" id="cx">Cancel</button><button class="go">Save birthday</button></div>
+  </form>
+</dialog>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MF=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MS=MF.map(m=>m.slice(0,3));
+const DIM=[31,29,31,30,31,30,31,31,30,31,30,31];
+const KIDS='Aliza Aliya Asher Eesa Isabella Adam Kinnory Rahmah Tanisha Eram Jadduka Ameera Bushra Inaya Aydin Kiron'.split(' ');
+const BASE=[
+[1,5,'Aliza'],[1,6,'Titash'],[1,13,'Papu'],[1,14,'Yusra'],[1,15,'Adrita'],[1,24,'Ilma'],[1,24,'Aliya'],
+[2,5,'Yamin'],[2,5,'Asher'],
+[3,5,'Annesha'],[3,6,'Ornob'],[3,14,'Eesa'],[3,18,'Kishore'],[3,21,'Putushi'],[3,23,'Isabella'],[3,30,'Shantu'],
+[4,14,'Adam'],[4,16,'Hashem Khalu'],[4,20,'Jui'],[4,20,'Kinnory'],[4,27,'Papu'],[4,27,'Mojel Mami'],[4,29,'Zayeem'],
+[5,29,'Pinu Khali','2nd birthday (Punorjonmo dibosh)'],
+[6,13,'Rahmah'],[6,28,'Shomla'],[6,28,'Tanisha'],
+[7,20,'Shomla'],[7,24,'Eram'],[7,27,'Tinni'],
+[8,2,'Jadduka'],[8,6,'Atiq Khalu'],[8,6,'Kingshuk'],[8,15,'Zamini'],[8,16,'Runia'],[8,19,'Bhanu Khali'],[8,30,'Anan'],
+[9,11,'Jinu Khali'],[9,11,'Ameera'],[9,14,'Bushra'],[9,22,'Inaya'],
+[10,3,'Chumki Mami'],[10,5,'Aydin'],[10,14,'Jinjin'],[10,30,'Choni'],
+[11,5,'Kanak'],[11,13,'Kiron'],[11,28,'Shabz'],
+[12,25,'Bonna','New celebration date (old date was 12 April)'],[12,31,'Pinu Khali','As per passport and certificates']
+];
+
+let extra=[];
+try{extra=JSON.parse(localStorage.getItem('bday-extra')||'[]')}catch(e){}
+const save=()=>{try{localStorage.setItem('bday-extra',JSON.stringify(extra))}catch(e){}};
+
+const now=new Date(), t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+const until=(m,d)=>{let t=new Date(t0.getFullYear(),m-1,d);if(t<t0)t=new Date(t0.getFullYear()+1,m-1,d);return Math.round((t-t0)/864e5)};
+const doy=(m,d)=>Math.round((new Date(2000,m-1,d)-new Date(2000,0,0))/864e5);
+const ang=v=>v/366*2*Math.PI-Math.PI/2;
+const pt=(a,r)=>[200+r*Math.cos(a),200+r*Math.sin(a)];
+const when=u=>u==0?'Today':u==1?'Tomorrow':u<60?`in ${u} days`:`in ${Math.round(u/30.4)} months`;
+
+let people=[];
+const S={kind:'all',sort:'month',m:null,q:''};
+
+function build(){
+  people=BASE.map(([m,d,n,note])=>({m,d,n,note,k:KIDS.includes(n)}))
+    .concat(extra.map((p,i)=>({...p,x:i})));
+  people.forEach((p,i)=>{p.id=i;p.u=until(p.m,p.d)});
+}
+const nextGroup=()=>{const mn=Math.min(...people.map(p=>p.u));return people.filter(p=>p.u===mn)};
+const ok=p=>(S.kind=='all'||(S.kind=='kid')==p.k)&&(S.m==null||p.m-1==S.m)&&p.n.toLowerCase().includes(S.q);
+
+function drawRing(){
+  let s='<circle class="core" cx="200" cy="200" r="100"/><circle class="rim" cx="200" cy="200" r="150"/>';
+  MS.forEach((n,i)=>{
+    const a=ang(doy(i+1,1)),[x1,y1]=pt(a,146),[x2,y2]=pt(a,158),[lx,ly]=pt(ang(doy(i+1,15)),176);
+    s+=`<line class="tick" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/><g class="mo" data-m="${i}" tabindex="0" role="button" aria-label="Show ${MF[i]}"><circle class="hit" cx="${lx}" cy="${ly}" r="16"/><text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central">${n}</text></g>`;
+  });
+  const ta=ang(doy(now.getMonth()+1,now.getDate())),[a1,b1]=pt(ta,100),[a2,b2]=pt(ta,150);
+  s+=`<line class="today" x1="${a1}" y1="${b1}" x2="${a2}" y2="${b2}"/><circle class="tdot" cx="${a2}" cy="${b2}" r="6"/>`;
+  const nx=new Set(nextGroup().map(p=>p.id)),seen={};
+  people.forEach(p=>{
+    const v=doy(p.m,p.d),key=(p.k?'k':'a')+v,j=seen[key]=(seen[key]??-1)+1,[x,y]=pt(ang(v),(p.k?118:138)-j*10);
+    s+=`<circle class="dot ${p.k?'k':'a'}${nx.has(p.id)?' next':''}" data-id="${p.id}" cx="${x}" cy="${y}" r="5" style="--i:${p.id}" tabindex="0" role="button" aria-label="${esc(p.n)}, ${p.d} ${MF[p.m-1]}"/>`;
+  });
+  $('ring').innerHTML=s;
+}
+
+function center(ps,label){
+  const p=ps[0],names=ps.length>2?`${p.n} and ${ps.length-1} more`:ps.map(x=>x.n).join(' & ');
+  $('center').innerHTML=`<small>${label||(p.u?'Next birthday':'Happy birthday')}</small><strong>${esc(names)}</strong><span>${p.d} ${MF[p.m-1]}</span><b>${when(p.u)}</b>`;
+}
+
+const row=p=>`<article class="row${p.k?' k':''}" id="r${p.id}"><div class="d">${p.d}<small>${MS[p.m-1]}</small></div><div><div class="n">${esc(p.n)}${p.x!=null?`<button class="x" data-x="${p.x}">Remove</button>`:''}</div><div class="s">${p.k?'Kid':'Family'}${p.note?', '+esc(p.note):''}</div></div><div class="badge${p.u<=7?' soon':''}">${when(p.u)}</div></article>`;
+
+function render(){
+  const L=people.filter(ok);
+  document.querySelectorAll('.dot').forEach(e=>e.classList.toggle('dim',!ok(people[e.dataset.id])));
+  document.querySelectorAll('.mo').forEach(e=>e.classList.toggle('on',S.m==+e.dataset.m));
+  document.querySelectorAll('#pills button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===''?S.m==null:+b.dataset.m==S.m));
+  document.querySelectorAll('#kind button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==S.kind));
+  document.querySelectorAll('#sort button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==S.sort));
+  let h='';
+  if(!L.length)h='<p class="empty">No one matches. Clear the search or add a birthday.</p>';
+  else if(S.sort=='next')h=L.slice().sort((a,b)=>a.u-b.u||a.n.localeCompare(b.n)).map(row).join('');
+  else for(let m=0;m<12;m++){
+    const g=L.filter(p=>p.m==m+1).sort((a,b)=>a.d-b.d||a.n.localeCompare(b.n));
+    if(g.length)h+=`<div class="mh"><h2>${MF[m]}</h2><span>${g.length} ${g.length==1?'birthday':'birthdays'}${m==now.getMonth()?', this month':''}</span></div>`+g.map(row).join('');
+  }
+  $('list').innerHTML=h;
+}
+
+function refresh(){build();drawRing();render();center(nextGroup())}
+
+function go(id){
+  if(!ok(people[id])){S.kind='all';S.q='';S.m=null;$('q').value=''}
+  render();
+  const el=$('r'+id);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1700)}
+}
+const setMonth=i=>{S.m=S.m===i?null:i;render()};
+
+const ring=$('ring');
+ring.addEventListener('click',e=>{
+  const m=e.target.closest('.mo'),d=e.target.closest('.dot');
+  if(m)setMonth(+m.dataset.m);else if(d)go(+d.dataset.id);
+});
+ring.addEventListener('keydown',e=>{
+  if(e.key=='Enter'||e.key==' '){const t=e.target.closest('.mo,.dot');if(t){e.preventDefault();t.dispatchEvent(new MouseEvent('click',{bubbles:true}))}}
+});
+const peek=e=>{const d=e.target.closest&&e.target.closest('.dot');if(d)center([people[d.dataset.id]],'Birthday')};
+const rest=()=>center(nextGroup());
+ring.addEventListener('pointerover',peek);ring.addEventListener('focusin',peek);
+ring.addEventListener('pointerout',rest);ring.addEventListener('focusout',rest);
+
+$('pills').innerHTML='<button data-m="">All year</button>'+MF.map((m,i)=>`<button data-m="${i}">${m}</button>`).join('');
+$('pills').addEventListener('click',e=>{const b=e.target.closest('button');if(b){S.m=b.dataset.m===''?null:+b.dataset.m;render()}});
+$('kind').addEventListener('click',e=>{const b=e.target.closest('button');if(b){S.kind=b.dataset.v;render()}});
+$('sort').addEventListener('click',e=>{const b=e.target.closest('button');if(b){S.sort=b.dataset.v;render()}});
+$('q').addEventListener('input',e=>{S.q=e.target.value.trim().toLowerCase();render()});
+$('list').addEventListener('click',e=>{
+  const x=e.target.closest('.x');
+  if(x){extra.splice(+x.dataset.x,1);save();refresh()}
+});
+
+$('fm').innerHTML=MF.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
+$('fm').addEventListener('change',()=>{$('fd').max=DIM[$('fm').value-1]});
+$('add').addEventListener('click',()=>$('dlg').showModal());
+$('cx').addEventListener('click',()=>$('dlg').close());
+$('f').addEventListener('submit',e=>{
+  e.preventDefault();
+  extra.push({n:$('fn').value.trim(),m:+$('fm').value,d:+$('fd').value,k:$('fk').checked});
+  save();$('f').reset();$('dlg').close();refresh();
+});
+
+refresh();
+</script>
+</body>
+</html>

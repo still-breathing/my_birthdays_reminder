@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Birthday Reminder</title>
+    <style>
+      :root {
+        --bg1: #fff7ed;
+        --bg2: #fdf2f8;
+        --pink: #ec4899;
+        --pink-dark: #be185d;
+        --gold: #fbbf24;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --card: rgba(255, 255, 255, 0.7);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, var(--bg1), var(--bg2));
+        color: var(--text);
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+
+      .container {
+        width: min(900px, 92vw);
+        background: var(--card);
+        border: 1px solid rgba(236, 72, 153, 0.2);
+        box-shadow: 0 25px 60px rgba(190, 24, 93, 0.12);
+        border-radius: 24px;
+        padding: 40px 28px;
+        text-align: center;
+        backdrop-filter: blur(6px);
+      }
+
+      .badge {
+        display: inline-block;
+        background: #fff1f2;
+        border: 1px solid rgba(236, 72, 153, 0.2);
+        color: var(--pink-dark);
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-size: 12px;
+      }
+
+      h1 {
+        font-size: clamp(2.4rem, 5vw, 5rem);
+        margin: 18px 0 14px;
+        line-height: 1.1;
+      }
+
+      .highlight {
+        color: var(--pink-dark);
+      }
+
+      .subtitle {
+        font-size: clamp(1rem, 2vw, 1.3rem);
+        color: var(--muted);
+        margin: 0 auto 28px;
+        max-width: 640px;
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        margin-top: 28px;
+      }
+
+      .mini-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 18px;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        padding: 20px 18px;
+      }
+
+      .mini-card .label {
+        color: var(--muted);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .mini-card .value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-top: 10px;
+        color: var(--pink-dark);
+      }
+
+      .cta {
+        margin-top: 30px;
+        display: inline-block;
+        background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+        color: white;
+        text-decoration: none;
+        padding: 16px 28px;
+        border-radius: 999px;
+        font-weight: 700;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 18px 30px rgba(236, 72, 153, 0.25);
+      }
+
+      .cta:hover {
+        transform: translateY(-2px);
+      }
+
+      .footer {
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <div class="badge">🎉 Birthday Reminder</div>
+      <h1>Celebrate <span class="highlight">special days</span> with joy!</h1>
+      <p class="subtitle">
+        A quick reminder page to keep track of birthdays and make every celebration a little brighter.
+      </p>
+
+      <div class="card-grid">
+        <div class="mini-card">
+          <div class="label">Birthdays</div>
+          <div class="value">12</div>
+        </div>
+        <div class="mini-card">
+          <div class="label">This Month</div>
+          <div class="value">4</div>
+        </div>
+        <div class="mini-card">
+          <div class="label">Upcoming</div>
+          <div class="value">3</div>
+        </div>
+      </div>
+
+      <a class="cta" href="mailto:friends@example.com?subject=Birthday%20Reminder">Send a Birthday Note</a>
+
+      <div class="footer">Made with love and a little sparkle ✨</div>
+    </main>
+  </body>
+</html>

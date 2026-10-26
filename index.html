@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Family birthdays</title>
+<title>My Birthday Calendar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
 :root {
   --bg:#EEEBF6;
   --card:#fff;
-  --ink:#241E3F;
+  --ink:#3c4452;
   --mute:#67628A;
   --line:#D8D3EA;
   --fam:#5B3FD0;
@@ -26,7 +26,7 @@
   :root {
     --bg:#171230;
     --card:#221B42;
-    --ink:#EEEAFB;
+    --ink:#3c4452;
     --mute:#A8A2C8;
     --line:#382F63;
     --fam:#A99AFF;
@@ -114,16 +114,17 @@ svg {
 .center span{color:var(--mute);font-size:.9rem}
 .center b{margin-top:8px;padding:4px 12px;border-radius:999px;background:var(--sunbg);color:var(--sunink);font-size:.82rem;font-weight:700}
 .controls {
-  display:flex;
-  flex-wrap:wrap;
+  display:grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
   gap:10px;
   align-items:center;
   margin:10px 0 18px;
 }
 .search {
-  flex:1 1 240px;
+  width:100%;
   min-width:0;
-  padding:11px 14px;
+  min-height:44px;
+  padding:0 14px;
   border-radius:12px;
   border:1.5px solid var(--line);
   background:var(--card);
@@ -137,14 +138,17 @@ svg {
   border-radius:12px;
   padding:3px;
   box-shadow:var(--shadow);
+  width:100%;
 }
 .seg button {
   border:0;
   background:none;
-  padding:7px 13px;
+  padding:8px 12px;
   border-radius:9px;
   color:var(--mute);
   font-weight:700;
+  width:100%;
+  min-height:40px;
 }
 .seg button[aria-pressed=true] {
   background:var(--ink);
@@ -158,28 +162,34 @@ svg {
   border-radius:12px;
   font-weight:700;
   box-shadow:var(--shadow);
+  min-height:44px;
+  width:100%;
 }
 .pills {
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-  overflow-x:auto;
+  display:grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap:8px;
   padding:2px 0 10px;
   scrollbar-width:none;
 }
 .pills button {
-  flex:none;
+  width:100%;
   border:1.5px solid var(--line);
   background:none;
-  padding:5px 12px;
+  padding:6px 8px;
   border-radius:999px;
   color:var(--mute);
   font-size:.9rem;
+  text-align:center;
 }
 .pills button[aria-pressed=true] {
   border-color:var(--ink);
   color:var(--ink);
   font-weight:700;
+}
+.pills .count {
+  font-size:.75rem;
+  opacity:.8;
 }
 .mh {
   display:flex;
@@ -319,6 +329,13 @@ footer {
   color:var(--mute);
   font-size:.88rem;
   max-width:60ch;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+footer span {
+  white-space:nowrap;
 }
  dialog {
   border:0;
@@ -391,17 +408,27 @@ footer {
   .page-header { margin-top:8px; }
   .hero { margin-top:12px; }
   .controls {
-    flex-direction:column;
+    grid-template-columns:1fr;
     align-items:stretch;
   }
   .search, .seg, .add {
     width:100%;
+  }
+  .search {
+    min-height:40px;
+    padding:0 12px;
   }
   .seg {
     justify-content:space-between;
   }
   .seg button {
     flex:1;
+    min-height:38px;
+    padding:8px 10px;
+  }
+  .pills {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap:6px;
   }
   .mh {
     align-items:flex-start;
@@ -429,13 +456,17 @@ footer {
     min-width:0;
     text-align:center;
   }
+  footer {
+    text-align:center;
+    justify-content:center;
+  }
 }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="page-header">
-    <h1>Family birthdays</h1>
+    <h1 id="pageTitle">My Birthday Calendar</h1>
     <p>Every birthday around one year. Tap a dot to see who it belongs to, or tap a month to filter the list.</p>
   </header>
 
@@ -463,7 +494,10 @@ footer {
   <nav class="pills" id="pills" aria-label="Filter by month"></nav>
   <main id="list" class="list"></main>
   <div id="pager" class="pager" aria-label="Birthday pager"></div>
-  <footer>Based on the family list updated 30 June 2026. Kids listed after Kiron (13 November) were cut off, so use Add birthday to fill them in. Anything you add is saved on this device only.</footer>
+  <footer>
+    <span>© 2026 My Birthday Calendar</span>
+    <span>Developed by Raiyeem Farhan</span>
+  </footer>
 </div>
 
 <dialog id="dlg">
@@ -482,6 +516,17 @@ footer {
   </form>
 </dialog>
 
+<dialog id="resetDlg">
+  <form id="resetForm">
+    <h3>Reset birthday list</h3>
+    <p>Are you sure you want to clear all saved birthday entries?</p>
+    <div class="acts">
+      <button type="button" id="resetCancel">Cancel</button>
+      <button class="go" type="submit">Reset entries</button>
+    </div>
+  </form>
+</dialog>
+
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -490,6 +535,7 @@ const SHORT_MONTHS=FULL_MONTHS.map(m=>m.slice(0,3));
 const FAMILY_LABEL='Borora';
 const KID_LABEL='Chotora';
 const PAGE_SIZE=7;
+const RESET_THRESHOLD=5;
 
 const DIM=[31,29,31,30,31,30,31,31,30,31,30,31];
 const KIDS='Aliza Aliya Asher Eesa Isabella Adam Kinnory Rahmah Tanisha Eram Jadduka Ameera Bushra Inaya Aydin Kiron'.split(' ');
@@ -510,6 +556,7 @@ const BASE=[
 
 let extra=[];
 let currentEditId=null;
+let titleClickCount=0;
 try{extra=JSON.parse(localStorage.getItem('bday-extra')||'[]')}catch(e){}
 const save=()=>{try{localStorage.setItem('bday-extra',JSON.stringify(extra))}catch(e){}};
 
@@ -530,6 +577,11 @@ function build(){
 }
 const nextGroup=()=>{const mn=Math.min(...people.map(p=>p.u));return people.filter(p=>p.u===mn)};
 const ok=p=>(S.kind=='all'||(S.kind=='kid')==p.k)&&(S.m==null||p.m-1==S.m)&&p.n.toLowerCase().includes(S.q);
+
+function renderPills(){
+  const counts=FULL_MONTHS.map((_,i)=>people.filter(p=>p.m===i+1 && ok(p)).length);
+  $('pills').innerHTML='<button data-m="">All year</button>'+FULL_MONTHS.map((m,i)=>`<button data-m="${i}">${m} <span class="count">(${counts[i]})</span></button>`).join('');
+}
 
 function renderPager(filtered){
   const totalPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
@@ -601,13 +653,14 @@ function openAddDialog(){
   $('dlg').showModal();
 }
 
+console.log('ready');
 const row=p=>`<article class="row${p.k?' k':''}" id="r${p.id}">
   <div class="d">${p.d}<small>${SHORT_MONTHS[p.m-1]}</small></div>
   <div class="meta">
     <div class="n">${esc(p.n)}${p.x!=null?`<button class="x" data-x="${p.x}">Remove</button>`:''}</div>
     <div class="s">${p.k?KID_LABEL:FAMILY_LABEL}${p.note?', '+esc(p.note):''}</div>
     <div class="row-actions">
-      <button type="button" class="edit" data-id="${p.id}">Edit name</button>
+      <button type="button" class="edit" data-id="${p.id}">Correct name</button>
       <button type="button" class="gcal" data-id="${p.id}">Google Calendar</button>
     </div>
   </div>
@@ -620,6 +673,7 @@ function render(){
   if(S.page>totalPages)S.page=totalPages;
   const start=(S.page-1)*PAGE_SIZE;
   const paged=filtered.slice(start,start+PAGE_SIZE);
+  renderPills();
   renderPager(filtered);
 
   document.querySelectorAll('.dot').forEach(e=>e.classList.toggle('dim',!ok(people[e.dataset.id])));
@@ -672,7 +726,6 @@ const rest=()=>center(nextGroup());
 ring.addEventListener('pointerover',peek);ring.addEventListener('focusin',peek);
 ring.addEventListener('pointerout',rest);ring.addEventListener('focusout',rest);
 
-$('pills').innerHTML='<button data-m="">All year</button>'+SHORT_MONTHS.map((m,i)=>`<button data-m="${i}">${m}</button>`).join('');
 $('pills').addEventListener('click',e=>{const b=e.target.closest('button');if(b){S.m=b.dataset.m===''?null:+b.dataset.m;S.page=1;render()}});
 $('kind').addEventListener('click',e=>{const b=e.target.closest('button');if(b){S.kind=b.dataset.v;S.page=1;render()}});
 $('sort').addEventListener('click',e=>{const b=e.target.closest('button');if(b){S.sort=b.dataset.v;S.page=1;render()}});
@@ -711,23 +764,20 @@ $('f').addEventListener('submit',e=>{
 
   if(!name){return;}
 
-  const person=people[currentEditId ?? 0];
-  const updated={n:name,m:month,d:day,k:isKid};
-
   if(currentEditId!=null){
     const current=people[currentEditId];
     if(current.x!=null){
-      extra[current.x]={...updated};
+      extra[current.x]={n:name,m:month,d:day,k:isKid};
     } else {
       const existingIndex=extra.findIndex(item=>item.m===current.m && item.d===current.d && item.n===current.n);
       if(existingIndex>=0){
-        extra[existingIndex]={...updated};
+        extra[existingIndex]={n:name,m:month,d:day,k:isKid};
       } else {
-        extra.push({...updated});
+        extra.push({n:name,m:month,d:day,k:isKid});
       }
     }
   } else {
-    extra.push({...updated});
+    extra.push({n:name,m:month,d:day,k:isKid});
   }
 
   save();
@@ -736,6 +786,24 @@ $('f').addEventListener('submit',e=>{
   currentEditId=null;
   S.page=1;
   refresh();
+});
+
+$('resetCancel').addEventListener('click',()=>{$('resetDlg').close();});
+$('resetForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  extra=[];
+  save();
+  $('resetDlg').close();
+  S.page=1;
+  refresh();
+});
+
+$('pageTitle').addEventListener('click',()=>{
+  titleClickCount += 1;
+  if(titleClickCount >= RESET_THRESHOLD){
+    titleClickCount = 0;
+    $('resetDlg').showModal();
+  }
 });
 
 $('fd').max=DIM[0];

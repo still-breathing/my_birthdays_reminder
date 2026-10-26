@@ -282,15 +282,15 @@ svg {
   font-size:.74rem;
 }
 .row-actions .edit {
-  background:var(--fam);
-  color:var(--bg);
-  border-color:var(--fam);
+  background:#ffb84d;
+  color:#1d1b2a;
+  border-color:#ffb84d;
   font-weight:700;
 }
 .row-actions .gcal {
-  background:var(--kid);
-  color:var(--bg);
-  border-color:var(--kid);
+  background:#5bb5ff;
+  color:#0c1830;
+  border-color:#5bb5ff;
   font-weight:700;
 }
 .x {
@@ -568,7 +568,7 @@ const BASE=[
   [1,5,'Aliza'],[1,6,'Titash'],[1,13,'Papu'],[1,14,'Yusra'],[1,15,'Adrita'],[1,24,'Ilma'],[1,24,'Aliya'],
   [2,5,'Yamin'],[2,5,'Asher'],
   [3,5,'Annesha'],[3,6,'Ornob'],[3,14,'Eesa'],[3,18,'Kishore'],[3,21,'Putushi'],[3,23,'Isabella'],[3,30,'Shantu'],
-  [4,14,'Adam'],[4,16,'Hashem Khalu'],[4,20,'Jui'],[4,20,'Kinnory'],[4,27,'Papu (Apr)'],[4,27,'Mojel Mami'],[4,29,'Zayeem'],
+  [4,14,'Adam'],[4,16,'Hashem Khalu'],[4,20,'Jui'],[4,20,'Kinnory'],[4,27,'Mojel Mami'],[4,29,'Zayeem'],
   [5,29,'Pinu Khali','2nd birthday (Punorjonmo dibosh)'],
   [6,13,'Rahmah'],[6,28,'Shomla'],[6,28,'Tanisha'],
   [7,20,'Shomla'],[7,24,'Eram'],[7,27,'Tinni'],
@@ -596,10 +596,14 @@ const fmtDate=(d)=>{const y=d.getFullYear(); const m=String(d.getMonth()+1).padS
 let people=[];
 const S={kind:'all',sort:'month',m:null,q:'',page:1};
 
+function getVisiblePeople(){
+  return people.filter(ok);
+}
+
 function build(){
-  const overriddenBaseKeys = new Set((extra || []).filter(p => p && p.__baseKey).map(p => p.__baseKey));
+  const overrideKeys = new Set((extra || []).filter(p => p && p.__baseKey).map(p => p.__baseKey));
   const basePeople = BASE.map(([m,d,n,note]) => ({m,d,n,note,k:KIDS.includes(n)}))
-    .filter(p => !overriddenBaseKeys.has(`${p.n}|${p.m}|${p.d}`));
+    .filter(p => !overrideKeys.has(`${p.n}|${p.m}|${p.d}`));
 
   const extraPeople = (extra || []).map((p, idx) => ({
     ...p,
@@ -614,7 +618,12 @@ function build(){
   people = basePeople.concat(extraPeople);
   people.forEach((p,i)=>{p.id=i;p.u=until(p.m,p.d)});
 }
-const nextGroup=()=>{const mn=Math.min(...people.map(p=>p.u));return people.filter(p=>p.u===mn)};
+const nextGroup=()=>{
+  const visible = getVisiblePeople();
+  if(!visible.length) return [];
+  const mn = Math.min(...visible.map(p=>p.u));
+  return visible.filter(p=>p.u===mn);
+};
 const ok=p=>(S.kind=='all'||(S.kind=='kid')==p.k)&&(S.m==null||p.m-1==S.m)&&p.n.toLowerCase().includes(S.q);
 
 function getMonthCount(monthIndex){
@@ -622,15 +631,15 @@ function getMonthCount(monthIndex){
 }
 
 function renderPills(){
-  const totalFiltered = people.filter(ok).length;
+  const totalFiltered = getVisiblePeople().length;
   const allYearLabel = totalFiltered ? `All year (${totalFiltered})` : 'All year';
-  const pillButtons = FULL_MONTHS.map((m, i) => {
-    const count = getMonthCount(i);
+  const activeMonthCount = S.m !== null ? getMonthCount(S.m) : 0;
+  const monthButtons = FULL_MONTHS.map((m, i) => {
     const isActive = S.m === i;
-    const label = isActive ? `${SHORT_MONTHS[i]} (${count})` : SHORT_MONTHS[i];
+    const label = isActive ? `${SHORT_MONTHS[i]} (${activeMonthCount})` : SHORT_MONTHS[i];
     return `<button data-m="${i}" ${isActive ? 'aria-pressed="true"' : 'aria-pressed="false"'}>${label}</button>`;
   }).join('');
-  $('pills').innerHTML = `<button data-m="" ${S.m === null ? 'aria-pressed="true"' : 'aria-pressed="false"'}>${allYearLabel}</button>${pillButtons}`;
+  $('pills').innerHTML = `<button data-m="" ${S.m === null ? 'aria-pressed="true"' : 'aria-pressed="false"'}>${allYearLabel}</button>${monthButtons}`;
 }
 
 function renderPager(filtered){
@@ -654,7 +663,8 @@ function drawRing(){
   });
   const ta=ang(doy(now.getMonth()+1,now.getDate())),[a1,b1]=pt(ta,100),[a2,b2]=pt(ta,150);
   s+=`<line class="today" x1="${a1}" y1="${b1}" x2="${a2}" y2="${b2}"/><circle class="tdot" cx="${a2}" cy="${b2}" r="6"/>`;
-  const nx=new Set(nextGroup().map(p=>p.id)),seen={};
+  const next = nextGroup();
+  const nx=new Set(next.map(p=>p.id)),seen={};
   people.forEach(p=>{
     const v=doy(p.m,p.d),key=(p.k?'k':'a')+v,j=seen[key]=(seen[key]??-1)+1,[x,y]=pt(ang(v),(p.k?118:138)-j*10);
     s+=`<circle class="dot ${p.k?'k':'a'}${nx.has(p.id)?' next':''}" data-id="${p.id}" cx="${x}" cy="${y}" r="5" style="--i:${p.id}" tabindex="0" role="button" aria-label="${esc(p.n)}, ${p.d} ${FULL_MONTHS[p.m-1]}"/>`;
@@ -663,6 +673,10 @@ function drawRing(){
 }
 
 function center(ps,label){
+  if (!ps || !ps.length) {
+    $('center').innerHTML = '<small>No matching birthday</small><strong>—</strong><span></span><b>None</b>';
+    return;
+  }
   const p=ps[0],names=ps.length>2?`${p.n} and ${ps.length-1} more`:ps.map(x=>x.n).join(' & ');
   $('center').innerHTML=`<small>${label||(p.u?'Next birthday':'Happy birthday')}</small><strong>${esc(names)}</strong><span>${p.d} ${FULL_MONTHS[p.m-1]}</span><b>${when(p.u)}</b>`;
 }
@@ -717,7 +731,7 @@ const row=p=>`<article class="row${p.k?' k':''}" id="r${p.id}">
 </article>`;
 
 function render(){
-  const filtered=people.filter(ok);
+  const filtered=getVisiblePeople();
   const totalPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
   if(S.page>totalPages)S.page=totalPages;
   const start=(S.page-1)*PAGE_SIZE;
@@ -751,7 +765,8 @@ function refresh(){
   build();
   drawRing();
   render();
-  center(nextGroup());
+  const next = nextGroup();
+  if (next.length) center(next); else center([]);
 }
 
 function go(id){
@@ -771,7 +786,7 @@ ring.addEventListener('keydown',e=>{
   if(e.key=='Enter'||e.key==' '){const t=e.target.closest('.mo,.dot');if(t){e.preventDefault();t.dispatchEvent(new MouseEvent('click',{bubbles:true}))}}
 });
 const peek=e=>{const d=e.target.closest&&e.target.closest('.dot');if(d)center([people[d.dataset.id]],'Birthday')};
-const rest=()=>center(nextGroup());
+const rest=()=>{const next=nextGroup(); if (next.length) center(next); else center([]);};
 ring.addEventListener('pointerover',peek);ring.addEventListener('focusin',peek);
 ring.addEventListener('pointerout',rest);ring.addEventListener('focusout',rest);
 
@@ -796,7 +811,7 @@ $('pager').addEventListener('click',e=>{
   if(!btn)return;
   const action=btn.dataset.action;
   if(action==='prev') S.page=Math.max(1,S.page-1);
-  if(action==='next') S.page=Math.min(Math.max(1,Math.ceil(people.filter(ok).length/PAGE_SIZE)),S.page+1);
+  if(action==='next') S.page=Math.min(Math.max(1,Math.ceil(getVisiblePeople().length/PAGE_SIZE)),S.page+1);
   render();
 });
 
@@ -816,14 +831,15 @@ $('f').addEventListener('submit',e=>{
   if(currentEditId!=null){
     const current=people[currentEditId];
     const baseKey = current && current.n && current.m && current.d ? `${current.n}|${current.m}|${current.d}` : null;
-    const existingIndex = baseKey ? extra.findIndex(item => item && item.__baseKey === baseKey) : -1;
+    const existingOverrideIndex = baseKey ? extra.findIndex(item => item && item.__baseKey === baseKey) : -1;
 
-    if(existingIndex >= 0){
-      extra[existingIndex] = { ...extra[existingIndex], n:name, m:month, d:day, k:isKid };
-    } else if (current && current.x == null && baseKey) {
-      extra.push({ n:name, m:month, d:day, k:isKid, __baseKey: baseKey });
-    } else if (current && current.x != null) {
+    if(current && current.x != null){
       extra[current.x] = { ...extra[current.x], n:name, m:month, d:day, k:isKid };
+      delete extra[current.x].__baseKey;
+    } else if (existingOverrideIndex >= 0) {
+      extra[existingOverrideIndex] = { ...extra[existingOverrideIndex], n:name, m:month, d:day, k:isKid, __baseKey: baseKey };
+    } else if (baseKey) {
+      extra.push({ n:name, m:month, d:day, k:isKid, __baseKey: baseKey });
     }
   } else {
     extra.push({n:name,m:month,d:day,k:isKid});
